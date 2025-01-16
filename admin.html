@@ -1,0 +1,124 @@
+<!-- admin.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Maplewood Review</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <?php
+        session_start();
+        if (!isset($_SESSION['admin_logged_in'])) {
+            header('Location: login.php');
+            exit();
+        }
+    ?>
+
+    <nav class="navbar">
+        <div class="logo">Admin Dashboard</div>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="logout.php">Logout</a></li>
+        </ul>
+    </nav>
+
+    <section class="hero">
+        <h1>📂 Submissions Overview</h1>
+    </section>
+
+    <section class="submissions">
+        <input type="text" id="searchInput" placeholder="Search by name or genre..." onkeyup="filterTable()">
+        <table id="submissionsTable">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Genre</th>
+                    <th>File</th>
+                    <th>Download</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                    $files = glob('submissions/*.json');
+                    foreach ($files as $file) {
+                        $data = json_decode(file_get_contents($file), true);
+                        echo "<tr>";
+                        echo "<td>{$data['name']}</td>";
+                        echo "<td>{$data['email']}</td>";
+                        echo "<td>{$data['genre']}</td>";
+                        echo "<td><a href='{$data['filepath']}' target='_blank'>View File</a></td>";
+                        echo "<td><a href='{$data['filepath']}' download>Download</a></td>";
+                        echo "</tr>";
+                    }
+                ?>
+            </tbody>
+        </table>
+    </section>
+
+    <script>
+        function filterTable() {
+            const input = document.getElementById("searchInput");
+            const filter = input.value.toLowerCase();
+            const table = document.getElementById("submissionsTable");
+            const rows = table.getElementsByTagName("tr");
+            for (let i = 1; i < rows.length; i++) {
+                const cells = rows[i].getElementsByTagName("td");
+                let match = false;
+                for (let j = 0; j < cells.length - 1; j++) {
+                    if (cells[j].textContent.toLowerCase().includes(filter)) {
+                        match = true;
+                        break;
+                    }
+                }
+                rows[i].style.display = match ? "" : "none";
+            }
+        }
+    </script>
+</body>
+</html>
+
+<!-- Updated submit.php with Validation and Email Notification -->
+<?php
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $name = htmlspecialchars(trim($_POST['name']));
+    $email = filter_var(trim($_POST['email']), FILTER_VALIDATE_EMAIL);
+    $genre = htmlspecialchars(trim($_POST['genre']));
+    $file = $_FILES['file'];
+
+    if ($name && $email && $genre && $file['error'] === UPLOAD_ERR_OK) {
+        $allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+        if (in_array($file['type'], $allowedTypes)) {
+            $uploadDir = 'uploads/';
+            $filePath = $uploadDir . basename($file['name']);
+
+            if (move_uploaded_file($file['tmp_name'], $filePath)) {
+                $submission = [
+                    'name' => $name,
+                    'email' => $email,
+                    'genre' => $genre,
+                    'filepath' => $filePath
+                ];
+                file_put_contents('submissions/' . uniqid() . '.json', json_encode($submission));
+                
+                // Email Notification
+                $to = 'admin@maplewoodreview.com';
+                $subject = 'New Submission Received';
+                $message = "New submission received:\n\nName: $name\nEmail: $email\nGenre: $genre\nFile: $filePath";
+                $headers = 'From: no-reply@maplewoodreview.com';
+                mail($to, $subject, $message, $headers);
+
+                echo '<script>alert("Submission Successful!"); window.location.href="submission.html";</script>';
+            } else {
+                echo '<script>alert("File upload failed."); window.location.href="submission.html";</script>';
+            }
+        } else {
+            echo '<script>alert("Invalid file type."); window.location.href="submission.html";</script>';
+        }
+    } else {
+        echo '<script>alert("Invalid input."); window.location.href="submission.html";</script>';
+    }
+}
+?>
