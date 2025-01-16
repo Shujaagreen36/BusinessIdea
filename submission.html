@@ -20,6 +20,33 @@
         </ul>
     </nav>
 
+ <!-- Submission Form Section -->
+ <section class="submission-form">
+    <h2>🔗 Submit Your Work</h2>
+    <form action="submit.php" method="POST" enctype="multipart/form-data">
+        <label for="name">Full Name:</label>
+        <input type="text" id="name" name="name" required>
+
+        <label for="email">Email Address:</label>
+        <input type="email" id="email" name="email" required>
+
+        <label for="genre">Genre:</label>
+        <select id="genre" name="genre">
+            <option value="fiction">Fiction</option>
+            <option value="nonfiction">Nonfiction</option>
+            <option value="poetry">Poetry</option>
+            <option value="experimental">Experimental</option>
+        </select>
+
+        <label for="file">Upload Your Work:</label>
+        <input type="file" id="file" name="file" accept=".pdf,.doc,.docx" required>
+
+        <button type="submit" class="btn">Submit Now</button>
+    </form>
+    <p id="success-message" style="color: green; display: none;">Thank you for your submission!</p>
+</section>
+
+
     <!-- Hero Section -->
     <section class="hero">
         <h1>🏆 The Samplenaess Prize 🏆</h1>
@@ -43,31 +70,7 @@
         <p>Whether it's fiction, nonfiction, poetry, or experimental work, we want to see your best!</p>
     </section>
 
-    <!-- Submission Form Section -->
-    <section class="submission-form">
-        <h2>🔗 Submit Your Work</h2>
-        <form action="submit.php" method="POST" enctype="multipart/form-data">
-            <label for="name">Full Name:</label>
-            <input type="text" id="name" name="name" required>
-
-            <label for="email">Email Address:</label>
-            <input type="email" id="email" name="email" required>
-
-            <label for="genre">Genre:</label>
-            <select id="genre" name="genre">
-                <option value="fiction">Fiction</option>
-                <option value="nonfiction">Nonfiction</option>
-                <option value="poetry">Poetry</option>
-                <option value="experimental">Experimental</option>
-            </select>
-
-            <label for="file">Upload Your Work:</label>
-            <input type="file" id="file" name="file" accept=".pdf,.doc,.docx" required>
-
-            <button type="submit" class="btn">Submit Now</button>
-        </form>
-        <p id="success-message" style="color: green; display: none;">Thank you for your submission!</p>
-    </section>
+   
 
     <!-- Visual Section -->
     <section class="visuals">
